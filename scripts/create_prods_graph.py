@@ -54,12 +54,20 @@ def main():
     most_popular_prod = max(list(g.nodes.data()), key=lambda n: n[1]["overall_amount"])
     print(f"most popular node:", most_popular_prod)
 
+    # find closest prods
+    prod_id = most_popular_prod[0]
+    closest_prods = sorted(
+        [(n, g.edges[prod_id, n]) for n in list(g.neighbors(prod_id))],
+        key=lambda n: n[1]["weight"],
+        reverse=True
+    )
+    closest_prods = closest_prods[:2]
+    print("closest prods:", closest_prods)
 
-    print(list(g.edges.data())[:10])
-
-    plt.figure(figsize=(25, 25))
-    nx.draw(g, width=0.05, with_labels=True)
-    plt.savefig("prod-graph", bbox_inches="tight")
+    # print(list(g.edges.data())[:10])
+    # plt.figure(figsize=(25, 25))
+    # nx.draw(g, width=0.05, with_labels=True)
+    # plt.savefig("prod-graph", bbox_inches="tight")
 
 
 if __name__ == "__main__":
