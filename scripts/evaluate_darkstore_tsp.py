@@ -1,3 +1,8 @@
+"""
+you could run this script in a such way:
+python scripts/evaluate_darkstore_tsp.py <filename_of_darkstore_map>
+"""
+
 import sys,os
 sys.path.append(os.getcwd())
 
