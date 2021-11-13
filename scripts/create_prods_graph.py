@@ -38,12 +38,23 @@ def create_graph(cheques_df):
                 g.add_edge(prod_1, prod_2, weight=1)
     return g
 
+
 def main():
     data_folder = Path("data")
     cheques_df = pd.read_csv(data_folder / "cheques_public.csv", sep=";")
     darkstore_df = pd.read_csv(data_folder / "darkstore_map.csv", sep=";")
 
     g = create_graph(cheques_df)
+
+    # add mean amount of prodcut per cheque
+    for n in g.nodes:
+        g.nodes[n]["mean_amount"]  = g.nodes[n]["overall_amount"] / g.nodes[n]["num_of_cheques"]
+
+    # calculate most popular node
+    most_popular_prod = max(list(g.nodes.data()), key=lambda n: n[1]["overall_amount"])
+    print(f"most popular node:", most_popular_prod)
+
+
     print(list(g.edges.data())[:10])
 
     plt.figure(figsize=(25, 25))
