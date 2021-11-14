@@ -26,7 +26,7 @@ def fill_in_nodes_distances(store_graph):
 
 
 def get_shelf_order(store_graph, init_node=1, mode="v1"):
-    assert mode in ["v1", "v2", "v3"], f"no such mode available: {mode}"
+    assert mode in ["v1", "v2", "v3", "v4"], f"no such mode available: {mode}"
     if mode == "v1":
         store_graph = fill_in_nodes_distances(store_graph)
 
@@ -65,6 +65,11 @@ def get_shelf_order(store_graph, init_node=1, mode="v1"):
         dist_to_zero = dist_to_zero.sort_values('dist_to_zero')
         dist_to_zero = dist_to_zero.reset_index(drop=True)
         order = dist_to_zero.values[1:, 0].astype(int).tolist()
+
+    elif mode == "v4":
+        order = [1, 2, 15, 7, 16, 8, 17, 9, 18, 10, 19, 11, 20, 12, 21, 13, 22, 14, 40, 39, 41, \
+                 42, 43, 44, 38, 30, 37, 29, 36, 28, 35, 27, 34, 26, 33, 25, 32, 24, 31, 23, 5, \
+                 6, 4, 3]
 
     return order
 
@@ -112,6 +117,7 @@ def get_graph_totoal_amount(g):
 def get_prod_order(g, sort_by="overall_amount"):
     items = list(sorted(g.nodes, key=lambda n: g.nodes[n][sort_by], reverse=True))
     return items
+
 
 def create_df(product_groupds, shelf_order):
     df = pd.DataFrame()
