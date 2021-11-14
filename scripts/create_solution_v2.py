@@ -90,12 +90,16 @@ def get_n_nodes(prod_graph, n_closest=3):
     return prod_graph.subgraph(selected), prod_graph.subgraph(not_selected)
 
 
-def split_into_parts(prod_graph):
+def split_into_parts(prod_graph, random_state):
     if prod_graph.number_of_nodes() in [33, 15]:
         selected, prod_graph = get_n_nodes(prod_graph)
-        split = nx.algorithms.community.kernighan_lin_bisection(prod_graph, seed=41, max_iter=1000)
-        res1 = split_into_parts(prod_graph.subgraph(split[0]))
-        res2 = split_into_parts(prod_graph.subgraph(split[1]))
+        split = nx.algorithms.community.kernighan_lin_bisection(
+            prod_graph,
+            seed=random_state-1,
+            max_iter=1000
+        )
+        res1 = split_into_parts(prod_graph.subgraph(split[0]), random_state)
+        res2 = split_into_parts(prod_graph.subgraph(split[1]), random_state)
 
         return res1 + res2 + [selected]
 
@@ -103,9 +107,13 @@ def split_into_parts(prod_graph):
         return [prod_graph]
 
     else:
-        split = nx.algorithms.community.kernighan_lin_bisection(prod_graph, seed=42, max_iter=1000)
-        res1 = split_into_parts(prod_graph.subgraph(split[0]))
-        res2 = split_into_parts(prod_graph.subgraph(split[1]))
+        split = nx.algorithms.community.kernighan_lin_bisection(
+            prod_graph,
+            seed=random_state,
+            max_iter=1000
+        )
+        res1 = split_into_parts(prod_graph.subgraph(split[0]), random_state)
+        res2 = split_into_parts(prod_graph.subgraph(split[1]), random_state)
 
         return res1 + res2
 
@@ -135,16 +143,21 @@ def create_df(product_groupds, shelf_order):
     return df
 
 
-def main(save_filename):
+def main(
+    save_filename,
+    random_state=42,
+    shelf_order_mode="v3",
+
+):
     data_folder = Path("data")
     cheques_df = pd.read_csv(data_folder / "cheques_public.csv", sep=";")
 
     store_graph = create_darkstore_graph()
     prod_graph = create_graph(cheques_df)
 
-    shelf_order = get_shelf_order(store_graph, mode="v3")
+    shelf_order = get_shelf_order(store_graph, mode=shelf_order_mode)
 
-    parts = split_into_parts(prod_graph)
+    parts = split_into_parts(prod_graph, random_state)
     parts = list(sorted(parts, key=get_graph_totoal_amount, reverse=True))
 
     # without split, on every iteration take 1 most popular and 2 related products
