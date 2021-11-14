@@ -34,12 +34,18 @@ def main(
     save_filename
 ):
     cheques_df = pd.read_csv("data/cheques_public.csv", sep=";")
-    darkstore_df = pd.read_csv("data/darkstore_map.csv", sep=";")
 
     g = create_graph(cheques_df)
-    popular = sorted(list(g.nodes.data()), key=lambda n: n[1]["overall_amount"], reverse=True)
-    popular = [int(x[0]) for x in popular]
+    
 
+    for n in g.nodes:
+        g.nodes[n]["mean_amount"]  = g.nodes[n]["overall_amount"] / g.nodes[n]["num_of_cheques"]
+
+    popular_detail = sorted(list(g.nodes.data()), key=lambda n: n[1]["mean_amount"], reverse=True)
+    popular = [int(x[0]) for x in popular_detail]
+
+    popular_dict = {x[0]: x[1]['mean_amount'] for x in popular_detail}
+    print(popular_dict)
     print('10 most popular products:', popular[:10])
 
     for n in g.nodes:
@@ -47,7 +53,7 @@ def main(
 
     best_items = []
 
-    n_popular = 6 # Тут різні варіанти пробувати
+    n_popular = 5 # Тут різні варіанти пробувати
 
     for popular_item in popular:
       if popular_item not in best_items:
@@ -58,7 +64,9 @@ def main(
             reverse=True
         )
         n_popular_list = [int(x[0]) for x in closest_prods[:n_popular]]
-        best_items += list(set(n_popular_list) - set(best_items))
+        n_popular_list = list(set(n_popular_list) - set(best_items))
+        n_popular_list = sorted(n_popular_list, key=popular_dict.get, reverse=True)
+        best_items += n_popular_list
 
     print()
     print('Likely to buy list:', best_items)
